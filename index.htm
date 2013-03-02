@@ -30,28 +30,31 @@
     <canvas id="game" width="600" height="400" style=></canvas>
   </body>
 
-  <script id=game_vars>
-    var c = document.getElementById("game");
-    var ctx = c.getContext("2d");
-    var frame = 0;
+  <script id=mouse>
+    var MOUSE_DOWN = "mouse down";
+    var MOUSE_UP = "mouse up";
+    var MOUSE_DRAG = "mouse drag";
     var mouse = {pos:xy(0, 0), delta:xy(0, 0), velocity:xy(0, 0), motion:"still", new_pos:false, state:MOUSE_UP};
-    var font = {size: 20, type: 'Arial'}
-    
+  </script>
+
+  <script id=game_vars>
     var game = {
-        title: "GAME TITLE",
-        fps: 60,
-        objects: [],
-        bg_color: 'black',
-        size: xy(600,400)
-        
+      title: "GAME TITLE",
+      ctx: document.getElementById("game").getContext("2d"),
+      frame: 0,
+      fps: 60,
+      objects: [],
+      bg_color: 'black',
+      size: xy(600,400),
+      font: {size: 20, type: 'Arial'}
     }
     
-    c.style.backgroundColor = game.bg_color;
+    game.ctx.canvas.style.backgroundColor = game.bg_color;
   </script>
   
   <script id=game_resources>
     var images = {
-        //splash: loadImage(ctx, "images/splash.png")
+        //splash: loadImage(game.ctx, "images/splash.png")
     }
   </script>
   
@@ -77,14 +80,13 @@
     }
     game.objects.push(player);
     
-    
   </script>
   
   <script id=game_stages>
     function titleScreen() {
-        clear();
-        ctx.drawImage(images.splash, 0, 0);
-        text(game.title, xy(100, 100));
+      clear();
+      game.ctx.drawImage(images.splash, 0, 0);
+      text(game.title, xy(100, 100));
     }
     function menu() {
         clear();
@@ -100,87 +102,87 @@
     function time() { return new Date().getTime() - t0; }
     
     c.addEventListener("mousemove", function(event) {
-        pos = calcMouseCanvasPos(event);
-        mouse.velocity = add(pos, neg(mouse.pos));
-        mouse.pos = pos;
-        mouse.new_pos = true;
-        mouse.motion = "moving";
-        
-        if (mouse.state == MOUSE_DOWN) { mouse.state = MOUSE_DRAG; }
-            
-        if (mouse.state == MOUSE_DRAG) {
-            if (c.clicked_object) c.clicked_object.ondrag(mouse.velocity);
-        }
-        
+      pos = calcMouseCanvasPos(event);
+      mouse.velocity = add(pos, neg(mouse.pos));
+      mouse.pos = pos;
+      mouse.new_pos = true;
+      mouse.motion = "moving";
+      
+      if (mouse.state == MOUSE_DOWN) { mouse.state = MOUSE_DRAG; }
+          
+      if (mouse.state == MOUSE_DRAG) {
+        if (c.clicked_object) c.clicked_object.ondrag(mouse.velocity);
+      }
+      
     });
     c.addEventListener("mousedown", function(event) {
-        mouse.state = MOUSE_DOWN;
-        iter(game.objects, function(obj) { 
-            if (obj.contains && obj.contains(mouse.pos)) c.clicked_object = obj;
-        });
-        if (c.clicked_object) c.clicked_object.onmousedown();
+      mouse.state = MOUSE_DOWN;
+      iter(game.objects, function(obj) { 
+        if (obj.contains && obj.contains(mouse.pos)) c.clicked_object = obj;
+      });
+      if (c.clicked_object) c.clicked_object.onmousedown();
     });
     c.addEventListener("mouseup", function(event) {
-        //console.log("\t" + time() + "\tmouseup\t" + mouse.motion + "\t" + mouse.velocity);
-        // CanvasObject onclick event
-        if (mouse.state == MOUSE_DOWN && c.clicked_object) c.clicked_object.onclick(mouse.pos);
-        
-        // CanvasObject onmouseup event
-        if (c.clicked_object) c.clicked_object.onmouseup();
-        
-        mouse.state = MOUSE_UP;
-        c.clicked_object = null;
+      //console.log("\t" + time() + "\tmouseup\t" + mouse.motion + "\t" + mouse.velocity);
+      // CanvasObject onclick event
+      if (mouse.state == MOUSE_DOWN && c.clicked_object) c.clicked_object.onclick(mouse.pos);
+      
+      // CanvasObject onmouseup event
+      if (c.clicked_object) c.clicked_object.onmouseup();
+      
+      mouse.state = MOUSE_UP;
+      c.clicked_object = null;
     });
     c.addEventListener("click", function(event) {
-        console.log("Clicked at " + mouse.pos);
+      console.log("Clicked at " + mouse.pos);
     })
     function calcMouseCanvasPos(event) {
-        if (navigator.userAgent.match(/Firefox/i)) {
-            return xy(event.layerX, event.layerY);
-		}
-		else if (navigator.userAgent.match(/Chrome/i)) {
-            return xy(event.layerX, event.layerY);
-		}
-		else if (navigator.userAgent.match(/MSIE/i)) {
-            return xy(event.x - c.offsetLeft, event.y - c.offsetTop);
-		}
-		else {
+      if (navigator.userAgent.match(/Firefox/i)) {
+        return xy(event.layerX, event.layerY);
+      }
+      else if (navigator.userAgent.match(/Chrome/i)) {
+        return xy(event.layerX, event.layerY);
+      }
+      else if (navigator.userAgent.match(/MSIE/i)) {
+        return xy(event.x - c.offsetLeft, event.y - c.offsetTop);
+      }
+      else {
 			// This is the same as the Chrome code
-            return xy(event.layerX, event.layerY);
-		}
+        return xy(event.layerX, event.layerY);
+      }
     }
     
   </script>
   
   <script id=main>
     function update_mouse() {
-        if (!mouse.new_pos) {
-            if (mouse.motion == "moving") mouse.motion = "stopped";
-            else {
-                mouse.motion = "still";
-                mouse.velocity = xy(0, 0);
-            }
+      if (!mouse.new_pos) {
+        if (mouse.motion == "moving") mouse.motion = "stopped";
+        else {
+          mouse.motion = "still";
+          mouse.velocity = xy(0, 0);
         }
-        mouse.new_pos = false;
+      }
+      mouse.new_pos = false;
     }
     function next() {
-        update_mouse();
-        ctx.fillStyle = game.bg_color;
-        ctx.fillRect(0, 0, 600, 400);
-        iter(game.objects, function(obj) { obj.tick(); });
-        iter(game.objects, function(obj) { obj.draw(); });
-        tick();
+      update_mouse();
+      game.ctx.fillStyle = game.bg_color;
+      game.ctx.fillRect(0, 0, 600, 400);
+      iter(game.objects, function(obj) { obj.tick(); });
+      iter(game.objects, function(obj) { obj.draw(); });
+      tick();
     }
     function tick() {
-        frame++;
-        setTimeout(next, 1000/game.fps);
+      frame++;
+      setTimeout(next, 1000/game.fps);
     }
     window.onload = function() {
-        ctx.font = font.size.toString() + "px " + font.type;
-        //titleScreen();
-        //menu();
-        
-        tick();
+      game.ctx.font = font.size.toString() + "px " + font.type;
+      //titleScreen();
+      //menu();
+      
+      tick();
     }
   </script>
 </html>
