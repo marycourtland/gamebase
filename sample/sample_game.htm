@@ -28,7 +28,7 @@
     </style>
   </head>
   <body>
-    Move Matt around with arrow keys
+    Move Matt around with arrow keys<br />
     <canvas id="game" width="600" height="400" style=></canvas>
   </body>
 
@@ -60,7 +60,9 @@
       splash: loadImage(game.ctx, "images/sample_splash.png"),
       dirt: loadImage(game.ctx, "images/sample_tile_dirt.png"),
       grass: loadImage(game.ctx, "images/sample_tile_grass.png"),
-      character: loadImage(game.ctx, "images/sample_character.png")
+      character: loadImage(game.ctx, "images/sample_character.png"),
+      startsign: loadImage(game.ctx, "images/sample_startsign.png"),
+      endsign: loadImage(game.ctx, "images/sample_endsign.png")
     }
   </script>
   
@@ -107,6 +109,29 @@
     }
     game.objects.push(environment);
     
+    // Two more custom objects
+    start_sign = {
+      id: "start sign",
+      pos: xy(10, 140),
+      img: images.startsign,
+      tick: function() {},
+      draw: function() {
+        game.ctx.drawImage(this.img, this.pos.x, this.pos.y)
+      }
+    }
+    end_sign = {
+      id: "end sign",
+      pos: xy(550, 140),
+      img: images.endsign,
+      tick: function() {},
+      draw: function() {
+        game.ctx.drawImage(this.img, this.pos.x, this.pos.y)
+      }
+    }
+    game.objects.push(start_sign);
+    game.objects.push(end_sign);
+    
+    
     // Player object - created with CanvasObject
     matt = CanvasObject(game.ctx, xy(40, 110), [], "Matt");
     showImages(matt, images.character);
@@ -117,7 +142,7 @@
   
   <script id=game_stages>
     function titleScreen() {
-      clear();
+      clear(game.ctx);
       game.ctx.drawImage(images.splash, 0, 0);
       text(game.title, xy(100, 100));
     }
