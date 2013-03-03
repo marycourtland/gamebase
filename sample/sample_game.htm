@@ -1,247 +1,232 @@
 <!DOCTYPE HTML>
 <html>
   <head>
-    <script src = "../lib/src/drawing.js"></script>
-    <script src = "../lib/src/game_utils.js"></script>
-    <script src = "../lib/src/math2D.js"></script>
-    <script src = "../lib/src/canvasobject.js"></script>
-    <script src = "../lib/src/field.js"></script>
-    <script src = "../lib/src/keyboard.js"></script>
-    <style>
-        body {
-            background-color: black;
-            color: white;
-            font-family: sans-serif;
-        }
-        canvas {
-            border: 1px solid white;
-            .position: absolute;
-            .left: 30px;
-            .top: 10px;
-            background-color: black;
-        }
-        div {
-            position:absolute;
-            top: 420px;
-            left: 30px;
-        }
-    </style>
+    <title>Sample game</title>
+    <link rel="stylesheet" href="sample.css" type="text/css" />
+    <script type="text/javascript" src="../vendor/underscore-min.js"></script>
+    <script type="text/javascript" src="../lib/compiled/drawing.js"></script>
+    <script type="text/javascript" src="../lib/compiled/game_utils.js"></script>
+    <script type="text/javascript" src="../lib/compiled/math2D.js"></script>
+    <script type="text/javascript" src="../lib/compiled/canvasobject.js"></script>
+    <script type="text/javascript" src="../lib/compiled/field.js"></script>
+    <script type="text/javascript" src="../lib/compiled/keyboard.js"></script>
   </head>
+
   <body>
     Move Matt around with arrow keys<br />
-    <canvas id="game" width="600" height="400" style=></canvas>
-  </body>
+    <canvas id="game" width="600" height="400"></canvas>
 
-  <script id=mouse>
-    var MOUSE_DOWN = "mouse down";
-    var MOUSE_UP = "mouse up";
-    var MOUSE_DRAG = "mouse drag";
-    var mouse = {pos:xy(0, 0), delta:xy(0, 0), velocity:xy(0, 0), motion:"still", new_pos:false, state:MOUSE_UP};
-  </script>
+    <script type="text/javascript" id="mouse">
+      var MOUSE_DOWN = "mouse down";
+      var MOUSE_UP = "mouse up";
+      var MOUSE_DRAG = "mouse drag";
+      var mouse = {pos:xy(0, 0), delta:xy(0, 0), velocity:xy(0, 0), motion:"still", new_pos:false, state:MOUSE_UP};
+    </script>
 
-  <script id=game_vars>
-    var game = {
-      title: "Sample game!",
-      canvas: document.getElementById("game"),
-      ctx: document.getElementById("game").getContext("2d"),
-      frame: 0,
-      fps: 60,
-      objects: [],
-      bg_color: 'black',
-      size: xy(600,400),
-      tilesize: xy(20,20),
-      font: {size: 20, type: 'Arial'}
-    }
+    <script type="text/javascript" id=game_vars>
+      var game = {
+        title: "Sample game!",
+        canvas: document.getElementById("game"),
+        ctx: document.getElementById("game").getContext("2d"),
+        frame: 0,
+        fps: 60,
+        objects: [],
+        bg_color: 'black',
+        size: xy(600,400),
+        tilesize: xy(20,20),
+        font: {size: 20, type: 'Arial'}
+      }
+      
+    </script>
     
-  </script>
-  
-  <script id=game_resources>
-    var images = {
-      splash: loadImage(game.ctx, "images/sample_splash.png"),
-      dirt: loadImage(game.ctx, "images/sample_tile_dirt.png"),
-      grass: loadImage(game.ctx, "images/sample_tile_grass.png"),
-      character: loadImage(game.ctx, "images/sample_character.png"),
-      startsign: loadImage(game.ctx, "images/sample_startsign.png"),
-      endsign: loadImage(game.ctx, "images/sample_endsign.png")
-    }
-  </script>
-  
-  <script id=game_objs>
-    // Environment - custom object
-    environment = {
-      id: "environment",
-      tiles: {'o': images.grass, '.': images.dirt},
-      map: [
-        "oooo..oooooooooooooooooooooooo",
-        "ooooo..ooooooooooooooooooooooo",
-        "oooooo.......ooooooooooooooooo",
-        "oooooooooooo.ooooooooooooooooo",
-        "oooooooooooo.ooooooooooooooooo",
-        "oooooooo.........ooooooooooooo",
-        "oooooooo.........ooooooooooooo",
-        "oooooooo.........ooooooooooooo",
-        "oooooooo.........ooooooooooooo",
-        "..............................",
-        "oooooooo.........ooooooooooooo",
-        "oooooooo.........ooooooooooooo",
-        "oooooooo.........ooooooooooooo",
-        "oooooooo.........ooooooooooooo",
-        "oooooooooooo.ooooooooooooooooo",
-        "oooooooooooo.ooooooooooooooooo",
-        "oooooooooooo.ooooooooooooooooo",
-        "oooooooooooo.ooooooooooooooooo",
-        "oooooooooooo.ooooooooooooooooo",
-        "oooooooooooo.ooooooooooooooooo"
-      ],
-      tick: function() {
-      },
-      draw: function() {
-        for (var row=0; row < this.map.length; row++) {
-          for (var col=0; col < this.map[0].length; col++) {
-            this.drawTile(row, col);
+    <script type="text/javascript" id=game_resources>
+      var images = {
+        splash: loadImage(game.ctx, "images/sample_splash.png"),
+        dirt: loadImage(game.ctx, "images/sample_tile_dirt.png"),
+        grass: loadImage(game.ctx, "images/sample_tile_grass.png"),
+        character: loadImage(game.ctx, "images/sample_character.png"),
+        startsign: loadImage(game.ctx, "images/sample_startsign.png"),
+        endsign: loadImage(game.ctx, "images/sample_endsign.png")
+      }
+    </script>
+    
+    <script type="text/javascript" id=game_objs>
+      // Environment - custom object
+      environment = {
+        id: "environment",
+        tiles: {'o': images.grass, '.': images.dirt},
+        map: [
+          "oooo..oooooooooooooooooooooooo",
+          "ooooo..ooooooooooooooooooooooo",
+          "oooooo.......ooooooooooooooooo",
+          "oooooooooooo.ooooooooooooooooo",
+          "oooooooooooo.ooooooooooooooooo",
+          "oooooooo.........ooooooooooooo",
+          "oooooooo.........ooooooooooooo",
+          "oooooooo.........ooooooooooooo",
+          "oooooooo.........ooooooooooooo",
+          "..............................",
+          "oooooooo.........ooooooooooooo",
+          "oooooooo.........ooooooooooooo",
+          "oooooooo.........ooooooooooooo",
+          "oooooooo.........ooooooooooooo",
+          "oooooooooooo.ooooooooooooooooo",
+          "oooooooooooo.ooooooooooooooooo",
+          "oooooooooooo.ooooooooooooooooo",
+          "oooooooooooo.ooooooooooooooooo",
+          "oooooooooooo.ooooooooooooooooo",
+          "oooooooooooo.ooooooooooooooooo"
+        ],
+        tick: function() {
+        },
+        draw: function() {
+          for (var row=0; row < this.map.length; row++) {
+            for (var col=0; col < this.map[0].length; col++) {
+              this.drawTile(row, col);
+            }
+          }
+        },
+        drawTile: function(row, col) {
+          var img = this.tiles[this.map[row].slice(col, col+1)];
+          game.ctx.drawImage(img, col*game.tilesize.x, row*game.tilesize.y);
+        }
+      }
+      game.objects.push(environment);
+      
+      // Two more custom objects
+      start_sign = {
+        id: "start sign",
+        pos: xy(10, 140),
+        img: images.startsign,
+        tick: function() {},
+        draw: function() {
+          game.ctx.drawImage(this.img, this.pos.x, this.pos.y)
+        }
+      }
+      end_sign = {
+        id: "end sign",
+        pos: xy(550, 140),
+        img: images.endsign,
+        tick: function() {},
+        draw: function() {
+          game.ctx.drawImage(this.img, this.pos.x, this.pos.y)
+        }
+      }
+      game.objects.push(start_sign);
+      game.objects.push(end_sign);
+      
+      
+      // Player object - created with CanvasObject
+      matt = CanvasObject(game.ctx, xy(40, 110), [], "Matt");
+      showImages(matt, images.character);
+      navigate(matt, keydirs_lrud, 10);
+      game.objects.push(matt);
+      
+    </script>
+    
+    <script type="text/javascript" id=game_stages>
+      function titleScreen() {
+        clear(game.ctx);
+        game.ctx.drawImage(images.splash, 0, 0);
+        text(game.title, xy(100, 100));
+      }
+      function menu() {
+          clear();
+          text("Menu:", xy(130, 130));
+          text(["Easy", "Normal", "Hard"], xy(220, 130));
+      }
+      function gameplay() {
+      }
+    </script>
+    
+    <script type="text/javascript" id=events>
+      var t0 = new Date().getTime();
+      function time() { return new Date().getTime() - t0; }
+      
+      game.canvas.addEventListener("mousemove", function(event) {
+        pos = calcMouseCanvasPos(event);
+        mouse.velocity = add(pos, neg(mouse.pos));
+        mouse.pos = pos;
+        mouse.new_pos = true;
+        mouse.motion = "moving";
+        
+        if (mouse.state == MOUSE_DOWN) { mouse.state = MOUSE_DRAG; }
+            
+        if (mouse.state == MOUSE_DRAG) {
+          if (game.canvas.clicked_object) game.canvas.clicked_object.ondrag(mouse.velocity);
+        }
+        
+      });
+      game.canvas.addEventListener("mousedown", function(event) {
+        mouse.state = MOUSE_DOWN;
+        iter(game.objects, function(obj) { 
+          if (obj.contains && obj.contains(mouse.pos)) game.canvas.clicked_object = obj;
+        });
+        if (game.canvas.clicked_object) game.canvas.clicked_object.onmousedown();
+      });
+      game.canvas.addEventListener("mouseup", function(event) {
+        //console.log("\t" + time() + "\tmouseup\t" + mouse.motion + "\t" + mouse.velocity);
+        // CanvasObject onclick event
+        if (mouse.state == MOUSE_DOWN && game.canvas.clicked_object) game.canvas.clicked_object.onclick(mouse.pos);
+        
+        // CanvasObject onmouseup event
+        if (game.canvas.clicked_object) game.canvas.clicked_object.onmouseup();
+        
+        mouse.state = MOUSE_UP;
+        game.canvas.clicked_object = null;
+      });
+      game.canvas.addEventListener("click", function(event) {
+        console.log("Clicked at " + mouse.pos);
+      })
+      function calcMouseCanvasPos(event) {
+        if (navigator.userAgent.match(/Firefox/i)) {
+          return xy(event.layerX, event.layerY);
+        }
+        else if (navigator.userAgent.match(/Chrome/i)) {
+          return xy(event.layerX, event.layerY);
+        }
+        else if (navigator.userAgent.match(/MSIE/i)) {
+          return xy(event.x - game.canvas.offsetLeft, event.y - game.canvas.offsetTop);
+        }
+        else {
+        // This is the same as the Chrome code
+          return xy(event.layerX, event.layerY);
+        }
+      }
+      
+    </script>
+    
+    <script type="text/javascript" id=main>
+      function update_mouse() {
+        if (!mouse.new_pos) {
+          if (mouse.motion == "moving") mouse.motion = "stopped";
+          else {
+            mouse.motion = "still";
+            mouse.velocity = xy(0, 0);
           }
         }
-      },
-      drawTile: function(row, col) {
-        var img = this.tiles[this.map[row].slice(col, col+1)];
-        game.ctx.drawImage(img, col*game.tilesize.x, row*game.tilesize.y);
+        mouse.new_pos = false;
       }
-    }
-    game.objects.push(environment);
-    
-    // Two more custom objects
-    start_sign = {
-      id: "start sign",
-      pos: xy(10, 140),
-      img: images.startsign,
-      tick: function() {},
-      draw: function() {
-        game.ctx.drawImage(this.img, this.pos.x, this.pos.y)
+      function next() {
+        update_mouse();
+        game.ctx.fillStyle = game.bg_color;
+        game.ctx.fillRect(0, 0, 600, 400);
+        iter(game.objects, function(obj) { obj.tick(); });
+        iter(game.objects, function(obj) { obj.draw(); });
+        tick();
       }
-    }
-    end_sign = {
-      id: "end sign",
-      pos: xy(550, 140),
-      img: images.endsign,
-      tick: function() {},
-      draw: function() {
-        game.ctx.drawImage(this.img, this.pos.x, this.pos.y)
+      function tick() {
+        game.frame++;
+        setTimeout(next, 1000/game.fps);
       }
-    }
-    game.objects.push(start_sign);
-    game.objects.push(end_sign);
-    
-    
-    // Player object - created with CanvasObject
-    matt = CanvasObject(game.ctx, xy(40, 110), [], "Matt");
-    showImages(matt, images.character);
-    navigate(matt, keydirs_lrud, 10);
-    game.objects.push(matt);
-    
-  </script>
-  
-  <script id=game_stages>
-    function titleScreen() {
-      clear(game.ctx);
-      game.ctx.drawImage(images.splash, 0, 0);
-      text(game.title, xy(100, 100));
-    }
-    function menu() {
-        clear();
-        text("Menu:", xy(130, 130));
-        text(["Easy", "Normal", "Hard"], xy(220, 130));
-    }
-    function gameplay() {
-    }
-  </script>
-  
-  <script id=events>
-    var t0 = new Date().getTime();
-    function time() { return new Date().getTime() - t0; }
-    
-    game.canvas.addEventListener("mousemove", function(event) {
-      pos = calcMouseCanvasPos(event);
-      mouse.velocity = add(pos, neg(mouse.pos));
-      mouse.pos = pos;
-      mouse.new_pos = true;
-      mouse.motion = "moving";
-      
-      if (mouse.state == MOUSE_DOWN) { mouse.state = MOUSE_DRAG; }
-          
-      if (mouse.state == MOUSE_DRAG) {
-        if (game.canvas.clicked_object) game.canvas.clicked_object.ondrag(mouse.velocity);
+      window.onload = function() {
+        game.ctx.canvas.style.backgroundColor = game.bg_color;
+        game.ctx.font = game.font.size.toString() + "px " + game.font.type;
+        //titleScreen();
+        //menu();
+        
+        tick();
       }
-      
-    });
-    game.canvas.addEventListener("mousedown", function(event) {
-      mouse.state = MOUSE_DOWN;
-      iter(game.objects, function(obj) { 
-        if (obj.contains && obj.contains(mouse.pos)) game.canvas.clicked_object = obj;
-      });
-      if (game.canvas.clicked_object) game.canvas.clicked_object.onmousedown();
-    });
-    game.canvas.addEventListener("mouseup", function(event) {
-      //console.log("\t" + time() + "\tmouseup\t" + mouse.motion + "\t" + mouse.velocity);
-      // CanvasObject onclick event
-      if (mouse.state == MOUSE_DOWN && game.canvas.clicked_object) game.canvas.clicked_object.onclick(mouse.pos);
-      
-      // CanvasObject onmouseup event
-      if (game.canvas.clicked_object) game.canvas.clicked_object.onmouseup();
-      
-      mouse.state = MOUSE_UP;
-      game.canvas.clicked_object = null;
-    });
-    game.canvas.addEventListener("click", function(event) {
-      console.log("Clicked at " + mouse.pos);
-    })
-    function calcMouseCanvasPos(event) {
-      if (navigator.userAgent.match(/Firefox/i)) {
-        return xy(event.layerX, event.layerY);
-      }
-      else if (navigator.userAgent.match(/Chrome/i)) {
-        return xy(event.layerX, event.layerY);
-      }
-      else if (navigator.userAgent.match(/MSIE/i)) {
-        return xy(event.x - game.canvas.offsetLeft, event.y - game.canvas.offsetTop);
-      }
-      else {
-			// This is the same as the Chrome code
-        return xy(event.layerX, event.layerY);
-      }
-    }
-    
-  </script>
-  
-  <script id=main>
-    function update_mouse() {
-      if (!mouse.new_pos) {
-        if (mouse.motion == "moving") mouse.motion = "stopped";
-        else {
-          mouse.motion = "still";
-          mouse.velocity = xy(0, 0);
-        }
-      }
-      mouse.new_pos = false;
-    }
-    function next() {
-      update_mouse();
-      game.ctx.fillStyle = game.bg_color;
-      game.ctx.fillRect(0, 0, 600, 400);
-      iter(game.objects, function(obj) { obj.tick(); });
-      iter(game.objects, function(obj) { obj.draw(); });
-      tick();
-    }
-    function tick() {
-      game.frame++;
-      setTimeout(next, 1000/game.fps);
-    }
-    window.onload = function() {
-      game.ctx.canvas.style.backgroundColor = game.bg_color;
-      game.ctx.font = game.font.size.toString() + "px " + game.font.type;
-      //titleScreen();
-      //menu();
-      
-      tick();
-    }
-  </script>
+    </script>
+  </body>
 </html>

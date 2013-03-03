@@ -1,0 +1,17 @@
+body {
+  background-color: black;
+  color: white;
+  font-family: sans-serif;
+}
+canvas {
+  border: 1px solid white;
+  .position: absolute;
+  .left: 30px;
+  .top: 10px;
+  background-color: black;
+}
+div {
+  position:absolute;
+  top: 420px;
+  left: 30px;
+}

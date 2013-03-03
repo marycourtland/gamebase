@@ -4,12 +4,25 @@
 #  
 #  Use field.at(obj) to get 
 #
+
+class Field
+  constructor: (type, at_func) ->
+    if arguments.length is 1
+      @at_func = type
+      @type = "effect"
+
+  at: @at_func
+  type: @type
+
+  display: (ctx, spacing) ->
+    # Assumes that the canvas hasn't been translated
+    pos = xy(0.5, 0.5)
+
+    while pos.y <= ctx.canvas.height
+      while pos.x <= ctx.canvas.width
+        pos.marker ctx
+
 field = (type, at_func) ->
-  if arguments_.length is 1
-    at_func = type
-    type = "effect"
-  at: at_func
-  type: type
   display: (ctx, spacing) ->
     
     # Assumes that the canvas hasn't been translated
