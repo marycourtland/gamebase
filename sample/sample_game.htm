@@ -1,12 +1,12 @@
 <!DOCTYPE HTML>
 <html>
   <head>
-    <script src = "lib/src/drawing.js"></script>
-    <script src = "lib/src/game_utils.js"></script>
-    <script src = "lib/src/math2D.js"></script>
-    <script src = "lib/src/canvasobject.js"></script>
-    <script src = "lib/src/field.js"></script>
-    <script src = "lib/src/keyboard.js"></script>
+    <script src = "../lib/src/drawing.js"></script>
+    <script src = "../lib/src/game_utils.js"></script>
+    <script src = "../lib/src/math2D.js"></script>
+    <script src = "../lib/src/canvasobject.js"></script>
+    <script src = "../lib/src/field.js"></script>
+    <script src = "../lib/src/keyboard.js"></script>
     <style>
         body {
             background-color: black;
@@ -28,6 +28,7 @@
     </style>
   </head>
   <body>
+    Move Matt around with arrow keys
     <canvas id="game" width="600" height="400" style=></canvas>
   </body>
 
@@ -40,7 +41,7 @@
 
   <script id=game_vars>
     var game = {
-      title: "GAME TITLE",
+      title: "Sample game!",
       canvas: document.getElementById("game"),
       ctx: document.getElementById("game").getContext("2d"),
       frame: 0,
@@ -48,6 +49,7 @@
       objects: [],
       bg_color: 'black',
       size: xy(600,400),
+      tilesize: xy(20,20),
       font: {size: 20, type: 'Arial'}
     }
     
@@ -55,31 +57,61 @@
   
   <script id=game_resources>
     var images = {
-        //splash: loadImage(game.ctx, "images/splash.png")
+      splash: loadImage(game.ctx, "images/sample_splash.png"),
+      dirt: loadImage(game.ctx, "images/sample_tile_dirt.png"),
+      grass: loadImage(game.ctx, "images/sample_tile_grass.png"),
+      character: loadImage(game.ctx, "images/sample_character.png")
     }
   </script>
   
   <script id=game_objs>
+    // Environment - custom object
     environment = {
       id: "environment",
-      
+      tiles: {'o': images.grass, '.': images.dirt},
+      map: [
+        "oooo..oooooooooooooooooooooooo",
+        "ooooo..ooooooooooooooooooooooo",
+        "oooooo.......ooooooooooooooooo",
+        "oooooooooooo.ooooooooooooooooo",
+        "oooooooooooo.ooooooooooooooooo",
+        "oooooooo.........ooooooooooooo",
+        "oooooooo.........ooooooooooooo",
+        "oooooooo.........ooooooooooooo",
+        "oooooooo.........ooooooooooooo",
+        "..............................",
+        "oooooooo.........ooooooooooooo",
+        "oooooooo.........ooooooooooooo",
+        "oooooooo.........ooooooooooooo",
+        "oooooooo.........ooooooooooooo",
+        "oooooooooooo.ooooooooooooooooo",
+        "oooooooooooo.ooooooooooooooooo",
+        "oooooooooooo.ooooooooooooooooo",
+        "oooooooooooo.ooooooooooooooooo",
+        "oooooooooooo.ooooooooooooooooo",
+        "oooooooooooo.ooooooooooooooooo"
+      ],
       tick: function() {
       },
       draw: function() {
+        for (var row=0; row < this.map.length; row++) {
+          for (var col=0; col < this.map[0].length; col++) {
+            this.drawTile(row, col);
+          }
+        }
+      },
+      drawTile: function(row, col) {
+        var img = this.tiles[this.map[row].slice(col, col+1)];
+        game.ctx.drawImage(img, col*game.tilesize.x, row*game.tilesize.y);
       }
-      
     }
     game.objects.push(environment);
     
-    player = {
-      id: "player",
-      
-      tick: function() {
-      },
-      draw: function() {
-      }
-    }
-    game.objects.push(player);
+    // Player object - created with CanvasObject
+    matt = CanvasObject(game.ctx, xy(40, 110), [], "Matt");
+    showImages(matt, images.character);
+    navigate(matt, keydirs_lrud, 10);
+    game.objects.push(matt);
     
   </script>
   
